@@ -138,9 +138,9 @@ const CommentAndLike = async function(session, accountId, text){
 			ngeLike(session, result[0].params.id)
 		]
 		const [Follow,Comment,Like] = await Promise.all(task);
-		const printFollow = Follow ? chalk`{green Follow}` : chalk`{red Follow}`;
-		const printComment = Comment ? chalk`{bold.yellow Comment}` : chalk`{red Comment}`;
-		const printLike = Like ? chalk`{green Like}` : chalk`{red Like}`;
+		const printFollow = Follow ? chalk`{green Follow}` : chalk`{red GAGAL Follow}`;
+		const printComment = Comment ? chalk`{bold.yellow Comment}` : chalk`{red GAGAL Comment}`;
+		const printLike = Like ? chalk`{green Like}` : chalk`{red GAGAL Like}`;
 		return chalk`{bold.cyan ${printFollow},${printComment},${printLike} [${text}]}`;
 	}
 	return chalk`{bold.red Media Profile Kosong [dilewati]}`
