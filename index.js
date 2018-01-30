@@ -181,7 +181,7 @@ const Excute = async function(User, TargetUsername, Text, Sleep){
 			var TargetResult = await Targetfeed.get();
 			TargetResult = _.chunk(TargetResult, 10);
 			for (let i = 0; i < TargetResult.length; i++) {
-				await Promise.all(TargetResult[i].map(async(akun) [ BOT BY © BASIS IJO [FOLLOW IG] @BASISIJO ] {
+							await Promise.all(TargetResult[i].map(async(akun) => {
 					if (!getFollowers.includes(akun.id) && akun.params.isPrivate === false) {
 						var ranText = Text[Math.floor(Math.random() * Text.length)];
 						const ngeDo = await CommentAndLike(doLogin.session, akun.id, ranText)
