@@ -154,7 +154,7 @@ const Followers = async function(session, id){
 		do {
 			if (cursor) feed.setCursor(cursor);
 			const getPollowers = await feed.get();
-			await Promise.all(getPollowers.map(async(akun) [ BOT BY © BASIS IJO [FOLLOW IG] @BASISIJO ] {
+			await Promise.all(getPollowers.map(async(akun) => {
 				Pollowers.push(akun.id);
 			}))
 			cursor = await feed.getCursor();
