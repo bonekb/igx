@@ -9,7 +9,7 @@ const User = [
 	{
 		type:'input',
 		name:'username',
-		message:'| Masukan User Anda |',
+		message:'Masukan Username ig anda',
 		validate: function(value){
 			if(!value) return 'Can\'t Empty';
 			return true;
@@ -18,7 +18,7 @@ const User = [
 	{
 		type:'password',
 		name:'password',
-		message:'| Masukan Password Anda |',
+		message:'Masukan Password Anda',
 		mask:'*',
 		validate: function(value){
 			if(!value) return 'Can\'t Empty';
@@ -28,7 +28,7 @@ const User = [
 	{
 		type:'input',
 		name:'target',
-		message:'| Masukan Nama Instagram Target [ TANPA MEMAKAI @ ]|',
+		message:'Insert Username Target (Without @[at])',
 		validate: function(value){
 			if(!value) return 'Can\'t Empty';
 			return true;
@@ -37,7 +37,7 @@ const User = [
 	{
 		type:'input',
 		name:'text',
-		message:'Masukan Bot Komen Anda, Jika Lebih Dari Satu Pakai Pemisah | ',
+		message:'Masukan Bot Coment, Gunakan [|] Untuk Pembatas Komen Lebih Dari Satu Kalimat ',
 		validate: function(value){
 			if(!value) return 'Can\'t Empty';
 			return true;
@@ -46,9 +46,9 @@ const User = [
 	{
 		type:'input',
 		name:'sleep',
-		message:'Masukan Jeda Waktu Bot [SARAN 300000] (In MiliSeconds)',
+		message:'Jeda Waktu (Perdetik)',
 		validate: function(value){
-			value = value.match(/[0-9]/);
+			value = value.match(/[0-15]/);
 			if (value) return true;
 			return 'Delay is number';
 		}
@@ -81,7 +81,7 @@ const Target = async function(username){
 	try{
 		const account = await rp(option);
 		if (account.user.is_private) {
-			return Promise.reject('PENGGUNA AKUN BERSIFAT PRIBADI/GAGAL CARI LAIN');
+			return Promise.reject('Target is private Account');
 		} else {
 			const id = account.user.id;
 			const followers = account.user.followed_by.count;
@@ -139,11 +139,11 @@ const CommentAndLike = async function(session, accountId, text){
 		]
 		const [Follow,Comment,Like] = await Promise.all(task);
 		const printFollow = Follow ? chalk`{green Follow}` : chalk`{red Follow}`;
-		const printComment = Comment ? chalk`{green Comment}` : chalk`{red Comment}`;
+		const printComment = Comment ? chalk`{bold.yellow Comment}` : chalk`{red Comment}`;
 		const printLike = Like ? chalk`{green Like}` : chalk`{red Like}`;
-		return chalk`{bold.green ${printFollow},${printComment},${printLike} [${text}]}`;
+		return chalk`{bold.cyan ${printFollow},${printComment},${printLike} [${text}]}`;
 	}
-	return chalk`{red MEDIA PROFILE KOSONG [DI LEWATI][ BOT BY © BASIS IJO [FOLLOW IG] @BASISIJO ]}`
+	return chalk`{bold.red Media Profile Kosong [dilewati]}`
 };
 
 const Followers = async function(session, id){
@@ -167,34 +167,34 @@ const Followers = async function(session, id){
 
 const Excute = async function(User, TargetUsername, Text, Sleep){
 	try {
-		console.log(chalk`{green \n | Masuk Ke Dalam Akun Anda |. . .}`)
+		console.log(chalk`{cyan \n | Login Ke Akun Anda .....}`)
 		const doLogin = await Login(User);
-		console.log(chalk`{red  | SUKSES | Mulai Identifikasi User ....}`)
+		console.log(chalk`{bold  | SUKSES..|  try To Get Informarion ....}`)
 		const getTarget = await Target(TargetUsername);
-		console.log(chalk`{green  | ${TargetUsername} | [${getTarget.id}] Jumlah Pengikut: ${getTarget.followers}}`)
+		console.log(chalk`{cyan  | ${TargetUsername}[${getTarget.id}] Followers: ${getTarget.followers}}`)
 		const getFollowers = await Followers(doLogin.session, doLogin.account.id)
-		console.log(chalk`{green  | MEMULAI BOT | \n}`)
+		console.log(chalk`{bold  | Memulai BOT  \n}`)
 		const Targetfeed = new Client.Feed.AccountFollowers(doLogin.session, getTarget.id);
 		var TargetCursor;
 		do {
 			if (TargetCursor) Targetfeed.setCursor(TargetCursor);
 			var TargetResult = await Targetfeed.get();
-			TargetResult = _.chunk(TargetResult, 10);
+			TargetResult = _.chunk(TargetResult, 15);
 			for (let i = 0; i < TargetResult.length; i++) {
-							await Promise.all(TargetResult[i].map(async(akun) => {
+				await Promise.all(TargetResult[i].map(async(akun) => {
 					if (!getFollowers.includes(akun.id) && akun.params.isPrivate === false) {
 						var ranText = Text[Math.floor(Math.random() * Text.length)];
 						const ngeDo = await CommentAndLike(doLogin.session, akun.id, ranText)
-						console.log(chalk`{bold.green ☑}${akun.params.username} [ BOT BY © BASIS IJO [FOLLOW IG] @BASISIJO ] ${ngeDo}`)
+						console.log(chalk`{bold.green  [√] }${akun.params.username} [Hasil] ${ngeDo}`)
 					} else {
-						console.log(chalk`{bold.pink User Di Lewati}${akun.params.username} -_- AKUN TERKUNCI [ DILEWATI ]`)
+						console.log(chalk`{bold.red [SKIPPED]}${akun.params.username} [Hasil] AKUN TERKUNCI / SUDAH DI FOLLOW`)
 					}
 				}));
-				console.log(chalk`{pink Delay For ${Sleep} MiliSeconds}`);
+				console.log(chalk`{bold Memulai bot lagi setelah ${Sleep} Detik  }`);
 				await delay(Sleep);
 			}
 			TargetCursor = await Targetfeed.getCursor();
-			console.log(chalk`{pink Jeda ${Sleep} Detik Lalu Melanjutkan Bot}`);
+			console.log(chalk`{yellow Delay For ${Sleep} MiliSeconds}`);
 			await delay(Sleep);
 		} while(Targetfeed.isMoreAvailable());
 	} catch (err) {
@@ -203,9 +203,19 @@ const Excute = async function(User, TargetUsername, Text, Sleep){
 }
 
 console.log(chalk`
-{bold TOOLS INSTAGRAM}
-{yellow VIP USER}
-{bold.green VVIP BOT BASIS IJO}
+{bold HARGA BOT HANYA SEPULUH RIBU}
+{bold.green 🐊  🐊  🐊  🐊  🐊  🐊  🐊  🐊  🐊  🐊  }
+{bold 🐊 VIP BOT INSTAGTAM     🐊}
+{bold.green 🐊 ♥  BONEK SWAG ♥     🐊}
+{bold 🐊 SALAM SATU NYALI WANI!     🐊}
+{bold.green 🐊 |Follow IG @Basisijo|     🐊}
+{bold 🐊  🐊  🐊  🐊  🐊  🐊  🐊  🐊  🐊  🐊   🐊  🐊  🐊  🐊  🐊}
+{bold.green 🐊 FUNSI BOT INI AUTO FOLLOW FOLLOWER TARGET🐊}
+{bold 🐊 Auto Bot Komen, Like,                    🐊}
+{bold.green 🐊 Premiun USER BOT INSTAGRAM by BASISIJO   🐊}
+{bold 🐊 SALAM SATU NYALI                         🐊}
+{bold.green 🐊  🐊  🐊  🐊  🐊  🐊  🐊  🐊  🐊  🐊   🐊  🐊  🐊  🐊  🐊}
+
 `);
 
 inquirer.prompt(User)
