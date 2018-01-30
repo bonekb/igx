@@ -209,7 +209,7 @@ console.log(chalk`
 `);
 
 inquirer.prompt(User)
-	.then(answers [ BOT BY © BASIS IJO [FOLLOW IG] @BASISIJO ] {
+	.then(answers => {
 		var text = answers.text.split('|');
 		Excute({
 			username:answers.username,
